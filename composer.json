@@ -1,0 +1,28 @@
+{
+    "name": "ulisesrendon/chat",
+    "description": "websocket chat app",
+    "type": "project",
+    "license": "private",
+    "autoload": {
+        "psr-4": {
+            "Chatapp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ulises Rendon",
+            "email": "fdulises@outlook.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "illuminate/database": "*",
+        "vlucas/phpdotenv": "*"
+    },
+    "scripts": {
+        "ws-server": "php -q server.php &"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "7.0.x-dev"
+    }
+}

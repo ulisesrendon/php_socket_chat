@@ -1,6 +1,8 @@
 <?php
 
-class logHelper
+namespace Chatapp\Shared;
+
+class LogHelper
 {
     public static ?string $path = null;
 
