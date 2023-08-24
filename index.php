@@ -1,8 +1,3 @@
-<?php
-$colors = array('#007AFF', '#FF7000', '#FF7000', '#15E25F', '#CFC700', '#CFC700', '#CF1100', '#CF00BE', '#F00');
-$color_pick = array_rand($colors);
-?>
-
 <!DOCTYPE html>
 <html>
 
@@ -70,39 +65,33 @@ $color_pick = array_rand($colors);
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script language="javascript" type="text/javascript">
         //create a new WebSocket object.
-        var msgBox = $('#message-box');
-        var wsUri = "ws://localhost:7000/server.php?room=1&user=1";
+        const msgBox = $('#message-box');
+        const wsUri = "ws://localhost:7000/server.php?room=1&user=1";
         websocket = new WebSocket(wsUri);
-
-        websocket.onopen = function(ev) { // connection is open
-            msgBox.append('<div class="system_msg" style="color:#bbbbbb">Welcome to my "Demo WebSocket Chat box"!</div>'); //notify user
+        websocket.onopen = function(ev) {
+            msgBox.append('<div class="system_msg" style="color:#bbbbbb">Connected! - Welcome to my the Chat room</div>');
         }
-        // Message received from server
+        websocket.onerror = function(ev) {
+            msgBox.append('<div class="system_error">Error Occurred - ' + ev.data + '</div>');
+        };
+        websocket.onclose = function(ev) {
+            msgBox.append('<div class="system_msg">Connection Closed</div>');
+        };
         websocket.onmessage = function(ev) {
-            var response = JSON.parse(ev.data); //PHP sends Json data
-
-            var res_type = response.type; //message type
-            var user_message = response.message; //message text
-            var user_name = response.name; //user name
-            var user_color = response.color; //color
+            const response = JSON.parse(ev.data);
+            const res_type = response.type ?? 'usermsg'; //message type
+            const user_message = response.message; //message text
+            const user_name = response.name; //user name
 
             switch (res_type) {
                 case 'usermsg':
-                    msgBox.append('<div><span class="user_name" style="color:' + user_color + '">' + user_name + '</span> : <span class="user_message">' + user_message + '</span></div>');
+                    msgBox.append('<div><span class="user_name" style="color:purple">' + user_name + '</span> : <span class="user_message">' + user_message + '</span></div>');
                     break;
                 case 'system':
                     msgBox.append('<div style="color:#bbbbbb">' + user_message + '</div>');
                     break;
             }
             msgBox[0].scrollTop = msgBox[0].scrollHeight; //scroll message
-
-        };
-
-        websocket.onerror = function(ev) {
-            msgBox.append('<div class="system_error">Error Occurred - ' + ev.data + '</div>');
-        };
-        websocket.onclose = function(ev) {
-            msgBox.append('<div class="system_msg">Connection Closed</div>');
         };
 
         //Message send button
@@ -126,21 +115,16 @@ $color_pick = array_rand($colors);
                 alert("Enter your Name please!");
                 return;
             }
-            if (message_input.val() == "") { //emtpy message?
+            if (name_input.val() == "") { //emtpy message?
                 alert("Enter Some message Please!");
                 return;
             }
 
-            //prepare json data
-            var msg = {
+            websocket.send(JSON.stringify({
                 message: message_input.val(),
                 name: name_input.val(),
-                color: '<?php echo $colors[$color_pick]; ?>',
                 room: window.room ?? 1
-            };
-            console.log(msg);
-            //convert and send data to server
-            websocket.send(JSON.stringify(msg));
+            }));
             message_input.val(''); //reset message input
         }
     </script>

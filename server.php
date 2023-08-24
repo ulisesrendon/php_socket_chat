@@ -22,12 +22,9 @@ $capsule->addConnection([
 $capsule->setAsGlobal();
 $capsule->bootEloquent();
 
-LogHelper::$path = __DIR__ . '/logs';
-LogHelper::log('funcionando ...');
-
 $host = 'localhost'; //host
 $port = '7000'; //port
-$null = NULL; //null var
+$null = null;
 
 //Create TCP/IP sream socket
 $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
@@ -41,8 +38,9 @@ socket_bind($socket, 0, $port);
 socket_listen($socket);
 
 //create & add listning socket to the list
-$clients = array($socket);
+$clients = [$socket];
 $rooms = [];
+$roomsPerSID = [];
 
 //start endless loop, so that our script doesn't stop
 while (true) {
@@ -59,94 +57,50 @@ while (true) {
 		$header = socket_read($socket_new, 1024); //read data sent by the socket
 		perform_handshaking($header, $socket_new, $host, $port); //perform websocket handshake
 
-		socket_getpeername($socket_new, $ip); //get ip address of connected socket
-		//send_message(mask(json_encode(['type'=>'system', 'message'=>$ip.' connected'])));
+		//socket_getpeername($socket_new, $ip); //get ip address of connected socket
 
 		//make room for new socket
-		$found_socket = array_search($socket, $changed);
-		unset($changed[$found_socket]);
+		unset($changed[array_search($socket, $changed)]);
 	}
 
 	//loop through all connected sockets
 	foreach ($changed as $changed_socket) {
 
+        $sid = array_search($changed_socket, $clients);
+
 		//check for any incomming data
 		while(socket_recv($changed_socket, $buf, 1024, 0) >= 1){
 			$tst_msg = json_decode(unmask($buf), true);
-            $tst_msg['room'] ??= 0;
-            $tst_msg['name'] ??= 'Empty';
 
-            $found_socket = array_search($changed_socket, $clients);
-            if( !isset($rooms[$tst_msg['room']][$found_socket]) ){
-                $rooms[$tst_msg['room']][$tst_msg['name']] = $found_socket;
+            // Group clients per room / disconnect if no room
+            if( !isset($tst_msg['room']) ){
+                socket_close($clients[$sid]);
+                unset($clients[$sid]);
+                break 2;
+            }
+            if( !isset($rooms[$tst_msg['room']][$sid]) ){
+                $rooms[$tst_msg['room']][$sid] = $sid;
+                $roomsPerSID[$sid][] = $tst_msg['room'];
             }
 
-            // send_message(mask(json_encode([
-            //     'type' => 'usermsg',
-            //     'name' => $tst_msg['name'],
-            //     'message' => $tst_msg['message'] ?? '...',
-            //     'color' => $tst_msg['color'] ?? '#000',
-            //     'room' => $tst_msg['room'],
-            // ])));
-
-            send_room_message([
-                'type' => 'usermsg',
-                'name' => $tst_msg['name'],
-                'message' => $tst_msg['message'] ?? '...',
-                'color' => $tst_msg['color'] ?? '#000',
-                'room' => $tst_msg['room'],
-            ]);
-
-			break 2; //exist this loop
+            send_room_message($tst_msg);
+			break 2;
 		}
 
 		$buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
-		if ($buf === false) { // check disconnected client
-			// remove client for $clients array
-			$found_socket = array_search($changed_socket, $clients);
-			socket_getpeername($changed_socket, $ip);
-			unset($clients[$found_socket]);
-
-            //unset($rooms[$query_params['room']][$found_socket]);
-
-			//notify all users about disconnected connection
-			//send_message(mask(json_encode(array('type' => 'system', 'message' => $ip . ' disconnected'))));
+        // check for disconnected client
+		if ($buf === false) {
+            //socket_getpeername($changed_socket, $ip);
+            // remove client from $rooms array
+            foreach ($roomsPerSID[$sid] as $room_id) unset($rooms[$room_id][$sid]);
+            unset($roomsPerSID[$sid]);
+			// remove client from $clients array
+			unset($clients[$sid]);
 		}
 	}
 }
 // close the listening socket
 socket_close($socket);
-
-function send_message($msg)
-{
-	global $clients;
-	global $rooms;
-	global $query_params;
-
-	foreach($clients as $changed_socket){
-        // if( isset($rooms[$query_params['room']][$changed_socket]) ){
-        //     @socket_write($changed_socket,$msg,strlen($msg));
-        // }
-        @socket_write($changed_socket, $msg, strlen($msg));
-	}
-
-	return true;
-}
-
-function send_room_message( array $data )
-{
-	global $rooms;
-    global $clients;
-
-    $msg = mask(json_encode($data));
-
-	foreach($rooms[$data['room']] as $changed_socket){
-        if(isset($clients[$changed_socket])) @socket_write($clients[$changed_socket], $msg, strlen($msg));
-	}
-
-	return true;
-}
-
 
 //Unmask incoming framed message
 function unmask($text)
@@ -177,27 +131,20 @@ function mask($text)
 	$b1 = 0x80 | (0x1 & 0x0f);
 	$length = strlen($text);
 
-	if($length <= 125)
-		$header = pack('CC', $b1, $length);
-	elseif($length > 125 && $length < 65536)
-		$header = pack('CCn', $b1, 126, $length);
-	elseif($length >= 65536)
-		$header = pack('CCNN', $b1, 127, $length);
+	if($length <= 125) $header = pack('CC', $b1, $length);
+	elseif($length > 125 && $length < 65536) $header = pack('CCn', $b1, 126, $length);
+	elseif($length >= 65536) $header = pack('CCNN', $b1, 127, $length);
 	return $header.$text;
 }
 
 //handshake new client.
 function perform_handshaking($receved_header,$client_conn, $host, $port)
 {
-	$headers = array();
+	$headers = [];
 	$lines = preg_split("/\r\n/", $receved_header);
-	foreach($lines as $line)
-	{
+	foreach($lines as $line){
 		$line = chop($line);
-		if(preg_match('/\A(\S+): (.*)\z/', $line, $matches))
-		{
-			$headers[$matches[1]] = $matches[2];
-		}
+		if(preg_match('/\A(\S+): (.*)\z/', $line, $matches)) $headers[$matches[1]] = $matches[2];
 	}
 
 	$secKey = $headers['Sec-WebSocket-Key'] ?? 1;
@@ -212,17 +159,15 @@ function perform_handshaking($receved_header,$client_conn, $host, $port)
 	socket_write($client_conn,$upgrade,strlen($upgrade));
 }
 
-function getQueryStringFromTextBlock( string $data ){
-    $params = [];
-    $data = explode( ' ', preg_split('#\r?\n#', $data, 2)[0] ?? '' );
-    $data = explode('?', $data[1] ?? '');
-    $data[1] ??= '';
-    foreach (explode('&', $data[1]) as $chunk) {
-        $param = explode("=", $chunk);
-        if ($param){
-            $param[1] ??= '';
-            $params[$param[0]] = rawurldecode($param[1]);
-        }
+function send_room_message(array $data)
+{
+    global $rooms;
+    global $clients;
+
+    $msg = mask(json_encode($data));
+    foreach ($rooms[$data['room']] as $sid) {
+        if (isset($clients[$sid])) @socket_write($clients[$sid], $msg, strlen($msg));
     }
-    return $params;
+
+    return true;
 }
