@@ -135,8 +135,10 @@ $color_pick = array_rand($colors);
             var msg = {
                 message: message_input.val(),
                 name: name_input.val(),
-                color: '<?php echo $colors[$color_pick]; ?>'
+                color: '<?php echo $colors[$color_pick]; ?>',
+                room: window.room ?? 1
             };
+            console.log(msg);
             //convert and send data to server
             websocket.send(JSON.stringify(msg));
             message_input.val(''); //reset message input

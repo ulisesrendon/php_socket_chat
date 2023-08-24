@@ -56,34 +56,11 @@ while (true) {
 		$socket_new = socket_accept($socket); //accpet new socket
 		$clients[] = $socket_new; //add socket to client array
 
-        $last_client = array_key_last($clients);
-
-        socket_recv($socket_new, $data, 1024, 0);
-        $data = explode( ' ', preg_split('#\r?\n#', $data, 2)[0] ?? '' );
-        $data = explode('?', $data[1] ?? '');
-        $query_params = [];
-        $data[1] ??= '';
-        foreach (explode('&', $data[1]) as $chunk) {
-            $param = explode("=", $chunk);
-            if ($param){
-                $param[1] ??= '';
-                $query_params[$param[0]] = rawurldecode($param[1]);
-            }
-        }
-        echo $query_params['room'] ?? 0;
-        exit();
-
-        $rooms[$_GET['room']][$last_client] = [
-            'client' => $last_client,
-            'user' => $_GET['user'],
-        ];
-
 		$header = socket_read($socket_new, 1024); //read data sent by the socket
 		perform_handshaking($header, $socket_new, $host, $port); //perform websocket handshake
 
 		socket_getpeername($socket_new, $ip); //get ip address of connected socket
-		$response = mask(json_encode(array('type'=>'system', 'message'=>$ip.' connected'))); //prepare json data
-		send_message($response); //notify all users about new connection
+		//send_message(mask(json_encode(['type'=>'system', 'message'=>$ip.' connected'])));
 
 		//make room for new socket
 		$found_socket = array_search($socket, $changed);
@@ -95,16 +72,31 @@ while (true) {
 
 		//check for any incomming data
 		while(socket_recv($changed_socket, $buf, 1024, 0) >= 1){
+			$tst_msg = json_decode(unmask($buf), true);
+            $tst_msg['room'] ??= 0;
+            $tst_msg['name'] ??= 'Empty';
 
-			$received_text = unmask($buf); //unmask data
-			$tst_msg = json_decode($received_text, true); //json decode
-			$user_name = $tst_msg['name'] ?? 'Empty'; //sender name
-			$user_message = $tst_msg['message'] ?? '...'; //message text
-			$user_color = $tst_msg['color'] ?? '#000'; //color
+            $found_socket = array_search($changed_socket, $clients);
+            if( !isset($rooms[$tst_msg['room']][$found_socket]) ){
+                $rooms[$tst_msg['room']][$tst_msg['name']] = $found_socket;
+            }
 
-			//prepare data to be sent to client
-			$response_text = mask(json_encode(array('type'=>'usermsg', 'name'=>$user_name, 'message'=>$user_message, 'color'=>$user_color)));
-			send_message($response_text); //send data
+            // send_message(mask(json_encode([
+            //     'type' => 'usermsg',
+            //     'name' => $tst_msg['name'],
+            //     'message' => $tst_msg['message'] ?? '...',
+            //     'color' => $tst_msg['color'] ?? '#000',
+            //     'room' => $tst_msg['room'],
+            // ])));
+
+            send_room_message([
+                'type' => 'usermsg',
+                'name' => $tst_msg['name'],
+                'message' => $tst_msg['message'] ?? '...',
+                'color' => $tst_msg['color'] ?? '#000',
+                'room' => $tst_msg['room'],
+            ]);
+
 			break 2; //exist this loop
 		}
 
@@ -115,11 +107,10 @@ while (true) {
 			socket_getpeername($changed_socket, $ip);
 			unset($clients[$found_socket]);
 
-            unset($rooms[$_GET['room']][$found_socket]);
+            //unset($rooms[$query_params['room']][$found_socket]);
 
 			//notify all users about disconnected connection
-			$response = mask(json_encode(array('type'=>'system', 'message'=>$ip.' disconnected')));
-			send_message($response);
+			//send_message(mask(json_encode(array('type' => 'system', 'message' => $ip . ' disconnected'))));
 		}
 	}
 }
@@ -130,11 +121,27 @@ function send_message($msg)
 {
 	global $clients;
 	global $rooms;
+	global $query_params;
 
 	foreach($clients as $changed_socket){
-        if( isset($rooms[$_GET['room']][$changed_socket]) ){
-            @socket_write($changed_socket,$msg,strlen($msg));
-        }
+        // if( isset($rooms[$query_params['room']][$changed_socket]) ){
+        //     @socket_write($changed_socket,$msg,strlen($msg));
+        // }
+        @socket_write($changed_socket, $msg, strlen($msg));
+	}
+
+	return true;
+}
+
+function send_room_message( array $data )
+{
+	global $rooms;
+    global $clients;
+
+    $msg = mask(json_encode($data));
+
+	foreach($rooms[$data['room']] as $changed_socket){
+        if(isset($clients[$changed_socket])) @socket_write($clients[$changed_socket], $msg, strlen($msg));
 	}
 
 	return true;
@@ -203,4 +210,19 @@ function perform_handshaking($receved_header,$client_conn, $host, $port)
 	"WebSocket-Location: ws://$host:$port/demo/shout.php\r\n".
 	"Sec-WebSocket-Accept:$secAccept\r\n\r\n";
 	socket_write($client_conn,$upgrade,strlen($upgrade));
+}
+
+function getQueryStringFromTextBlock( string $data ){
+    $params = [];
+    $data = explode( ' ', preg_split('#\r?\n#', $data, 2)[0] ?? '' );
+    $data = explode('?', $data[1] ?? '');
+    $data[1] ??= '';
+    foreach (explode('&', $data[1]) as $chunk) {
+        $param = explode("=", $chunk);
+        if ($param){
+            $param[1] ??= '';
+            $params[$param[0]] = rawurldecode($param[1]);
+        }
+    }
+    return $params;
 }
