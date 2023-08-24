@@ -1,12 +1,5 @@
 <?php
 
-require_once 'logHelper.php';
-
-//file_put_contents('php://stdout', 'Hello world');
-
-logHelper::$path = __DIR__ . '/logs';
-logHelper::log('funcionando ...');
-
 $host = 'localhost'; //host
 $port = '7000'; //port
 $null = NULL; //null var
