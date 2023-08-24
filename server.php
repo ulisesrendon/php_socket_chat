@@ -10,20 +10,20 @@ use Dotenv\Dotenv;
 
 (Dotenv::createImmutable(__DIR__))->load();
 
-$capsule = new Capsule;
-$capsule->addConnection([
-    "driver" => $_ENV['DB_CONNECTION'],
-    "host" => $_ENV['DB_HOST'],
-    "port" => $_ENV['DB_PORT'],
-    "database" => $_ENV['DB_DATABASE'],
-    "username" => $_ENV['DB_USERNAME'],
-    "password" => $_ENV['DB_PASSWORD'],
-]);
-$capsule->setAsGlobal();
-$capsule->bootEloquent();
+// $capsule = new Capsule;
+// $capsule->addConnection([
+//     "driver" => $_ENV['DB_CONNECTION'],
+//     "host" => $_ENV['DB_HOST'],
+//     "port" => $_ENV['DB_PORT'],
+//     "database" => $_ENV['DB_DATABASE'],
+//     "username" => $_ENV['DB_USERNAME'],
+//     "password" => $_ENV['DB_PASSWORD'],
+// ]);
+// $capsule->setAsGlobal();
+// $capsule->bootEloquent();
 
 $host = 'localhost'; //host
-$port = '7000'; //port
+$port = $_ENV['APP_PORT']; //port
 $null = null;
 
 //Create TCP/IP sream socket

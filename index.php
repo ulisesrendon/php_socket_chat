@@ -66,7 +66,7 @@
     <script language="javascript" type="text/javascript">
         //create a new WebSocket object.
         const msgBox = $('#message-box');
-        const wsUri = "ws://localhost:7000/server.php?room=1&user=1";
+        const wsUri = "ws://<?php echo $_ENV['APP_WS_SERVER'] ?>:<?php echo $_ENV['APP_PORT'] ?>/server.php";
         websocket = new WebSocket(wsUri);
         websocket.onopen = function(ev) {
             msgBox.append('<div class="system_msg" style="color:#bbbbbb">Connected! - Welcome to my the Chat room</div>');
