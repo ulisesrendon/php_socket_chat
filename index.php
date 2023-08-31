@@ -73,7 +73,7 @@ use Dotenv\Dotenv;
     <script language="javascript" type="text/javascript">
         //create a new WebSocket object.
         const msgBox = $('#message-box');
-        const wsUri = "ws://<?php echo $_ENV['APP_WS_SERVER'] ?>:<?php echo $_ENV['APP_PORT'] ?>/server.php";
+        const wsUri = "ws://<?php echo $_ENV['APP_WS_SERVER_DOMAIN'] ?>:<?php echo $_ENV['APP_PORT'] ?>/server.php";
         websocket = new WebSocket(wsUri);
         websocket.onopen = function(ev) {
             msgBox.append('<div class="system_msg" style="color:#bbbbbb">Connected! - Welcome to my the Chat room</div>');
