@@ -92,8 +92,10 @@ while (true) {
 		if ($buf === false) {
             //socket_getpeername($changed_socket, $ip);
             // remove client from $rooms array
-            foreach ($roomsPerSID[$sid] as $room_id) unset($rooms[$room_id][$sid]);
-            unset($roomsPerSID[$sid]);
+            if(isset($roomsPerSID[$sid])) {
+				foreach ($roomsPerSID[$sid] as $room_id) unset($rooms[$room_id][$sid]);
+				unset($roomsPerSID[$sid]);
+			}
 			// remove client from $clients array
 			unset($clients[$sid]);
 		}
