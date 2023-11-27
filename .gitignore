@@ -2,3 +2,4 @@ logs/*
 !logs/.gitkeep
 /vendor/
 *.env
+composer.lock
