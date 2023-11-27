@@ -23,6 +23,7 @@ use Dotenv\Dotenv;
 // $capsule->bootEloquent();
 
 $host = 'localhost'; //host
+$location = $_ENV['APP_PORT']; //domain name
 $port = $_ENV['APP_PORT']; //port
 $null = null;
 
@@ -55,7 +56,7 @@ while (true) {
 		$clients[] = $socket_new; //add socket to client array
 
 		$header = socket_read($socket_new, 1024); //read data sent by the socket
-		perform_handshaking($header, $socket_new, $host, $port); //perform websocket handshake
+		perform_handshaking($header, $socket_new, $host, $port, $location); //perform websocket handshake
 
 		//socket_getpeername($socket_new, $ip); //get ip address of connected socket
 
@@ -140,7 +141,7 @@ function mask($text)
 }
 
 //handshake new client.
-function perform_handshaking($receved_header,$client_conn, $host, $port)
+function perform_handshaking($receved_header,$client_conn, $host, $port, $location)
 {
 	$headers = [];
 	$lines = preg_split("/\r\n/", $receved_header);
@@ -156,7 +157,7 @@ function perform_handshaking($receved_header,$client_conn, $host, $port)
 	"Upgrade: websocket\r\n" .
 	"Connection: Upgrade\r\n" .
 	"WebSocket-Origin: $host\r\n" .
-	"WebSocket-Location: wss://$host:$port/websocket\r\n".
+	"WebSocket-Location: $location\r\n".
 	"Sec-WebSocket-Accept:$secAccept\r\n\r\n";
 	socket_write($client_conn,$upgrade,strlen($upgrade));
 }

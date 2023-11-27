@@ -3,7 +3,7 @@ window.addEventListener("load", function () {
     const message_input = document.querySelector('#message');
     const name_input = document.querySelector('#name');
 
-    const wsUri = `ws://${window.SERVER_DOMAIN}:${window.SERVER_PORT}`;
+    const wsUri = `${window.SERVER_PROTOCOL}://${window.SERVER_DOMAIN}:${window.SERVER_PORT}`;
     websocket = new WebSocket(wsUri);
     websocket.onopen = function (ev) {
         msgBox.innerHTML += '<div class="system_msg" style="color:#bbbbbb">Connected! - Welcome to "El farma Chat"</div>';

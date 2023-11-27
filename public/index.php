@@ -24,8 +24,10 @@ use Dotenv\Dotenv;
     </div>
 
     <script>
+        window.SERVER_PROTOCOL = "<?php echo $_ENV['APP_WS_SERVER_PROTOCOL'] ?>";
         window.SERVER_DOMAIN = "<?php echo $_ENV['APP_WS_SERVER_DOMAIN'] ?>";
-        window.SERVER_PORT = "<?php echo $_ENV['APP_PORT'] ?>";
+        // window.SERVER_PORT = "<?php echo $_ENV['APP_PORT'] ?>";
+        window.SERVER_PORT = 443;
     </script>
     <script src="main.js" type="text/javascript"></script>
 </body>
