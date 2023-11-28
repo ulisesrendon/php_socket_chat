@@ -22,6 +22,12 @@ use Dotenv\Dotenv;
 // $capsule->setAsGlobal();
 // $capsule->bootEloquent();
 
+/* Allow the script to hang around waiting for connections. */
+set_time_limit(0);
+
+/* Turn on implicit output flushing so we see what comes in. */
+ob_implicit_flush();
+
 $host = 'localhost'; //host
 $location = $_ENV['APP_PORT']; //domain name
 $port = $_ENV['APP_PORT']; //port

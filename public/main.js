@@ -27,6 +27,12 @@ function wsChat(msgBox){
         }
         msgBox.scrollTop = msgBox.scrollHeight; //scroll message
     };
+
+    window.websocket.send(JSON.stringify({
+        message: '',
+        name: document.querySelector('#name').value,
+        room: window.room ?? 1
+    }));
 }
 
 window.addEventListener("load", function () {
