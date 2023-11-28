@@ -9,6 +9,15 @@ function wsChat(msgBox){
             room: window.room ?? 1,
             type: '...'
         }));
+
+        setInterval(function () {
+            window.websocket.send(JSON.stringify({
+                message: '...',
+                name: document.querySelector('#name').value,
+                room: window.room ?? 1,
+                type: '...'
+            }));
+        },1000);
     }
     window.websocket.onerror = function (ev) {
         msgBox.innerHTML += '<div class="system_error">Error Occurred - ' + ev.data + '</div>';
