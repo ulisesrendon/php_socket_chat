@@ -73,7 +73,8 @@ window.addEventListener("load", function () {
         window.websocket.send(JSON.stringify({
             message: message_input.value,
             name: name_input.value,
-            room: window.room ?? 1
+            room: window.room ?? 1,
+            type: 'usermsg'
         }));
         message_input.value = ''; //reset message input
     }
