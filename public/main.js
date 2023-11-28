@@ -7,7 +7,7 @@ function wsChat(msgBox){
             message: '...',
             name: document.querySelector('#name').value,
             room: window.room ?? 1,
-            type: '...'
+            type: 'keepalive'
         }));
 
         setInterval(function () {
@@ -15,7 +15,7 @@ function wsChat(msgBox){
                 message: '...',
                 name: document.querySelector('#name').value,
                 room: window.room ?? 1,
-                type: '...'
+                type: 'keepalive'
             }));
         },1000);
     }

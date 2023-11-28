@@ -173,9 +173,13 @@ function send_room_message(array $data)
     global $rooms;
     global $clients;
 
-	$msg = mask(json_encode($data));
-	foreach ($rooms[$data['room']] as $sid) {
-		if (isset($clients[$sid])) @socket_write($clients[$sid], $msg, strlen($msg));
+	$data['type'] ??= '';
+
+	if ($data['type'] != 'keepalive'){
+		$msg = mask(json_encode($data));
+		foreach ($rooms[$data['room']] as $sid) {
+			if (isset($clients[$sid])) @socket_write($clients[$sid], $msg, strlen($msg));
+		}
 	}
 
     return true;
