@@ -90,9 +90,7 @@ while (true) {
                 $roomsPerSID[$sid][] = $tst_msg['room'];
             }
 
-			$tst_msg['type'] ??= '';
-
-            if( $tst_msg['type'] != '...' ) send_room_message($tst_msg);
+			send_room_message($tst_msg);
 			break 2;
 		}
 
@@ -175,10 +173,14 @@ function send_room_message(array $data)
     global $rooms;
     global $clients;
 
-    $msg = mask(json_encode($data));
-    foreach ($rooms[$data['room']] as $sid) {
-        if (isset($clients[$sid])) @socket_write($clients[$sid], $msg, strlen($msg));
-    }
+	$data['type'] ??= '';
+
+	if ($data['type'] != '...'){
+		$msg = mask(json_encode($data));
+		foreach ($rooms[$data['room']] as $sid) {
+			if (isset($clients[$sid])) @socket_write($clients[$sid], $msg, strlen($msg));
+		}
+	}
 
     return true;
 }
