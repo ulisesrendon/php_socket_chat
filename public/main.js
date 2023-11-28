@@ -35,12 +35,13 @@ function wsChat(msgBox){
         switch (res_type) {
             case 'usermsg':
                 msgBox.innerHTML += '<div><span class="user_name" style="color:purple">' + user_name + '</span> : <span class="user_message">' + user_message + '</span></div>';
+                msgBox.scrollTop = msgBox.scrollHeight; //scroll message
                 break;
             case 'system':
                 msgBox.innerHTML += '<div style="color:#bbbbbb">' + user_message + '</div>';
+                msgBox.scrollTop = msgBox.scrollHeight; //scroll message
                 break;
         }
-        msgBox.scrollTop = msgBox.scrollHeight; //scroll message
     };    
 }
 

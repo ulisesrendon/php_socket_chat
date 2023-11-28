@@ -90,7 +90,9 @@ while (true) {
                 $roomsPerSID[$sid][] = $tst_msg['room'];
             }
 
-            send_room_message($tst_msg);
+			$tst_msg['type'] ??= '';
+
+            if( $tst_msg['type'] != '...' ) send_room_message($tst_msg);
 			break 2;
 		}
 
