@@ -10,6 +10,13 @@ function wsChat(msgBox){
     window.websocket.onclose = function (ev) {
         msgBox.innerHTML += '<div class="system_msg">Connection Closed</div>';
         wsChat(msgBox);
+        setTimeout(function(){
+            window.websocket.send(JSON.stringify({
+                message: '...',
+                name: document.querySelector('#name').value,
+                room: window.room ?? 1
+            }));
+        }, 3000)
     };
     window.websocket.onmessage = function (ev) {
         const response = JSON.parse(ev.data);
@@ -26,13 +33,7 @@ function wsChat(msgBox){
                 break;
         }
         msgBox.scrollTop = msgBox.scrollHeight; //scroll message
-    };
-
-    window.websocket.send(JSON.stringify({
-        message: '',
-        name: document.querySelector('#name').value,
-        room: window.room ?? 1
-    }));
+    };    
 }
 
 window.addEventListener("load", function () {
