@@ -40,7 +40,7 @@ window.addEventListener("load", function () {
     const message_input = document.querySelector('#message');
     const name_input = document.querySelector('#name');
 
-    wsChat(msgBox, msgName);
+    wsChat(msgBox, name_input);
 
     document.querySelector('#send-message').addEventListener('click', send_message);
 
