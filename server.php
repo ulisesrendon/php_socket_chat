@@ -70,7 +70,7 @@ while (true) {
         $sid = array_search($changed_socket, $clients);
 
 		//check for any incomming data
-		while(socket_recv($changed_socket, $buf, 1024, 0) >= 1){
+		while(@socket_recv($changed_socket, $buf, 1024, 0) >= 1){
 			$tst_msg = json_decode(unmask($buf), true);
 
             // Group clients per room / disconnect if no room
