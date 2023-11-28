@@ -15,7 +15,7 @@ function wsChat(msgBox, msgName){
     };
     window.websocket.onclose = function (ev) {
         msgBox.innerHTML += '<div class="system_msg">Connection Closed</div>';
-        wsChat(msgBox);
+        wsChat(msgBox, msgName);
     };
     window.websocket.onmessage = function (ev) {
         const response = JSON.parse(ev.data);
