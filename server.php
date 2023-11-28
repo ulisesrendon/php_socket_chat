@@ -61,7 +61,7 @@ while (true) {
 		$socket_new = socket_accept($socket); //accpet new socket
 		$clients[] = $socket_new; //add socket to client array
 
-		$header = socket_read($socket_new, 1048576); //read data sent by the socket
+		$header = socket_read($socket_new, 2097152); //read data sent by the socket
 		perform_handshaking($header, $socket_new, $host, $port, $location); //perform websocket handshake
 
 		//socket_getpeername($socket_new, $ip); //get ip address of connected socket
@@ -76,7 +76,7 @@ while (true) {
         $sid = array_search($changed_socket, $clients);
 
 		//check for any incomming data
-		while(socket_recv($changed_socket, $buf, 1048576, 0) >= 1){
+		while(socket_recv($changed_socket, $buf, 2097152, 0) >= 1){
 			$tst_msg = json_decode(unmask($buf), true);
 
             // Group clients per room / disconnect if no room
@@ -94,7 +94,7 @@ while (true) {
 			break 2;
 		}
 
-		$buf = @socket_read($changed_socket, 1048576, PHP_NORMAL_READ);
+		$buf = @socket_read($changed_socket, 2097152, PHP_NORMAL_READ);
         // check for disconnected client
 		if ($buf === false) {
             //socket_getpeername($changed_socket, $ip);
