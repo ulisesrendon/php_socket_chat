@@ -17,7 +17,8 @@
     "minimum-stability": "dev",
     "require": {
         "illuminate/database": "*",
-        "vlucas/phpdotenv": "*"
+        "vlucas/phpdotenv": "*",
+        "paragi/php-websocket-client": "dev-master"
     },
     "scripts": {
         "ws-server": "php -q server.php &"

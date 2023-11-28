@@ -34,6 +34,7 @@ function wsChat(msgBox){
 
         switch (res_type) {
             case '':
+            case 'msg':
             case 'usermsg':
                 msgBox.innerHTML += '<div><span class="user_name" style="color:purple">' + user_name + '</span> : <span class="user_message">' + user_message + '</span></div>';
                 msgBox.scrollTop = msgBox.scrollHeight; //scroll message
