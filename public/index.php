@@ -18,7 +18,7 @@ use Dotenv\Dotenv;
         <div id="message-box"></div>
         <div class="user-panel">
             <input type="text" name="name" id="name" placeholder="Your Name" maxlength="15" />
-            <input type="text" name="message" id="message" placeholder="Type your message here..." maxlength="100" />
+            <textarea name="message" id="message" placeholder="Type your message here..."></textarea>
             <button id="send-message">Send</button>
         </div>
     </div>

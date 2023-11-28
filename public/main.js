@@ -63,7 +63,7 @@ window.addEventListener("load", function () {
 
     function send_message() {
         if (message_input.value == "") {
-            alert("Enter Some message please!");
+            //alert("Enter Some message please!");
             return;
         }
         if (name_input.value == "") {
@@ -78,5 +78,6 @@ window.addEventListener("load", function () {
             type: 'usermsg'
         }));
         message_input.value = ''; //reset message input
+        message_input.focus();
     }
 });
