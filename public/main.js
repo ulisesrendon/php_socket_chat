@@ -17,7 +17,7 @@ function wsChat(msgBox){
                 room: window.room ?? 1,
                 type: 'keepalive'
             }));
-        },1000);
+        },30000);
     }
     window.websocket.onerror = function (ev) {
         msgBox.innerHTML += '<div class="system_error">Error Occurred - ' + ev.data + '</div>';
