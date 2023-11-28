@@ -1,8 +1,14 @@
-function wsChat(msgBox){
+function wsChat(msgBox, msgName){
     const wsUri = `${window.SERVER_PROTOCOL}://${window.SERVER_DOMAIN}:${window.SERVER_PORT}`;
     window.websocket = new WebSocket(wsUri);
     window.websocket.onopen = function (ev) {
         msgBox.innerHTML += '<div class="system_msg" style="color:#bbbbbb">Connected! - Welcome to "El farma Chat"</div>';
+        window.websocket.send(JSON.stringify({
+            message: '...',
+            name: msgName.value,
+            room: window.room ?? 1,
+            type: '...'
+        }));
     }
     window.websocket.onerror = function (ev) {
         msgBox.innerHTML += '<div class="system_error">Error Occurred - ' + ev.data + '</div>';
@@ -10,13 +16,6 @@ function wsChat(msgBox){
     window.websocket.onclose = function (ev) {
         msgBox.innerHTML += '<div class="system_msg">Connection Closed</div>';
         wsChat(msgBox);
-        setTimeout(function(){
-            window.websocket.send(JSON.stringify({
-                message: '...',
-                name: document.querySelector('#name').value,
-                room: window.room ?? 1
-            }));
-        }, 3000)
     };
     window.websocket.onmessage = function (ev) {
         const response = JSON.parse(ev.data);
@@ -41,7 +40,7 @@ window.addEventListener("load", function () {
     const message_input = document.querySelector('#message');
     const name_input = document.querySelector('#name');
 
-    wsChat(msgBox);
+    wsChat(msgBox, msgName);
 
     document.querySelector('#send-message').addEventListener('click', send_message);
 
