@@ -1,20 +1,17 @@
-window.addEventListener("load", function () {
-    const msgBox = document.querySelector("#message-box");
-    const message_input = document.querySelector('#message');
-    const name_input = document.querySelector('#name');
-
+function wsChat(msgBox){
     const wsUri = `${window.SERVER_PROTOCOL}://${window.SERVER_DOMAIN}:${window.SERVER_PORT}`;
-    websocket = new WebSocket(wsUri);
-    websocket.onopen = function (ev) {
+    window.websocket = new WebSocket(wsUri);
+    window.websocket.onopen = function (ev) {
         msgBox.innerHTML += '<div class="system_msg" style="color:#bbbbbb">Connected! - Welcome to "El farma Chat"</div>';
     }
-    websocket.onerror = function (ev) {
+    window.websocket.onerror = function (ev) {
         msgBox.innerHTML += '<div class="system_error">Error Occurred - ' + ev.data + '</div>';
     };
-    websocket.onclose = function (ev) {
+    window.websocket.onclose = function (ev) {
         msgBox.innerHTML += '<div class="system_msg">Connection Closed</div>';
+        wsChat(msgBox);
     };
-    websocket.onmessage = function (ev) {
+    window.websocket.onmessage = function (ev) {
         const response = JSON.parse(ev.data);
         const res_type = response.type ?? 'usermsg'; //message type
         const user_message = response.message; //message text
@@ -30,6 +27,14 @@ window.addEventListener("load", function () {
         }
         msgBox.scrollTop = msgBox.scrollHeight; //scroll message
     };
+}
+
+window.addEventListener("load", function () {
+    const msgBox = document.querySelector("#message-box");
+    const message_input = document.querySelector('#message');
+    const name_input = document.querySelector('#name');
+
+    wsChat(msgBox);
 
     document.querySelector('#send-message').addEventListener('click', send_message);
 
@@ -49,7 +54,7 @@ window.addEventListener("load", function () {
             return;
         }
 
-        websocket.send(JSON.stringify({
+        window.websocket.send(JSON.stringify({
             message: message_input.value,
             name: name_input.value,
             room: window.room ?? 1
