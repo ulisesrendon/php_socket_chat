@@ -1,11 +1,11 @@
-function wsChat(msgBox, msgName){
+function wsChat(msgBox){
     const wsUri = `${window.SERVER_PROTOCOL}://${window.SERVER_DOMAIN}:${window.SERVER_PORT}`;
     window.websocket = new WebSocket(wsUri);
     window.websocket.onopen = function (ev) {
         msgBox.innerHTML += '<div class="system_msg" style="color:#bbbbbb">Connected! - Welcome to "El farma Chat"</div>';
         window.websocket.send(JSON.stringify({
             message: '...',
-            name: msgName.value,
+            name: document.querySelector('#name').value,
             room: window.room ?? 1,
             type: '...'
         }));
@@ -15,7 +15,7 @@ function wsChat(msgBox, msgName){
     };
     window.websocket.onclose = function (ev) {
         msgBox.innerHTML += '<div class="system_msg">Connection Closed</div>';
-        wsChat(msgBox, msgName);
+        wsChat(msgBox);
     };
     window.websocket.onmessage = function (ev) {
         const response = JSON.parse(ev.data);
@@ -40,7 +40,7 @@ window.addEventListener("load", function () {
     const message_input = document.querySelector('#message');
     const name_input = document.querySelector('#name');
 
-    wsChat(msgBox, name_input);
+    wsChat(msgBox);
 
     document.querySelector('#send-message').addEventListener('click', send_message);
 
