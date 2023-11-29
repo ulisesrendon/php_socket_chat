@@ -25,6 +25,8 @@ use Dotenv\Dotenv;
 /* Allow the script to hang around waiting for connections. */
 set_time_limit(0);
 
+date_default_timezone_set('America/Mexico_City');
+
 /* Turn on implicit output flushing so we see what comes in. */
 ob_implicit_flush();
 
@@ -176,9 +178,10 @@ function send_room_message(array $data)
 
 	if ($data['type'] != 'keepalive'){
 		$msg = mask(json_encode($data));
+		$total = count($rooms[$data['room']]);
+		$date = date('Y-m-d H:i:s');
+		echo "{$date}: Escribiendo en el room {$data['room']}, con {$total} participantes\n";
 		foreach ($rooms[$data['room']] as $sid) {
-			$total = count($rooms[$data['room']]);
-			echo "Escribiendo en el room {$data['room']}, con {$total} participantes\n";
 			if (isset($clients[$sid])) @socket_write($clients[$sid], $msg, strlen($msg));
 		}
 	}
