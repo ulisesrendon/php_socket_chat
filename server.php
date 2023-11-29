@@ -78,7 +78,7 @@ while (true) {
 		//check for any incomming data
 		while(socket_recv($changed_socket, $buf, 5242880, 0) >= 1){
 			$tst_msg = json_decode(unmask($buf), true);
-
+			echo $tst_msg['room'];
             // Group clients per room / disconnect if no room
             if( !isset($tst_msg['room']) ){
                 socket_close($clients[$sid]);
