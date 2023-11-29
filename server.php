@@ -177,7 +177,8 @@ function send_room_message(array $data)
 	if ($data['type'] != 'keepalive'){
 		$msg = mask(json_encode($data));
 		foreach ($rooms[$data['room']] as $sid) {
-			echo "Escribiendo en el room {$data['room']}\n";
+			$total = count($data['room']);
+			echo "Escribiendo en el room {$data['room']}, con {$total} participantes\n";
 			if (isset($clients[$sid])) @socket_write($clients[$sid], $msg, strlen($msg));
 		}
 	}
