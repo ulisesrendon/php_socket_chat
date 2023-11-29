@@ -180,7 +180,7 @@ function send_room_message(array $data)
 		$msg = mask(json_encode($data));
 		$total = count($rooms[$data['room']]);
 		$date = date('Y-m-d H:i:s');
-		echo "{$date}: Escribiendo en el room {$data['room']}, con {$total} participantes\n";
+		//echo "{$date}: Escribiendo en el room {$data['room']}, con {$total} participantes\n";
 		foreach ($rooms[$data['room']] as $sid) {
 			if (isset($clients[$sid])) @socket_write($clients[$sid], $msg, strlen($msg));
 		}
