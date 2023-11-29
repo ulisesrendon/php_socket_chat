@@ -78,7 +78,6 @@ while (true) {
 		//check for any incomming data
 		while(socket_recv($changed_socket, $buf, 5242880, 0) >= 1){
 			$tst_msg = json_decode(unmask($buf), true);
-			echo $tst_msg['room'];
             // Group clients per room / disconnect if no room
             if( !isset($tst_msg['room']) ){
                 socket_close($clients[$sid]);
@@ -178,6 +177,7 @@ function send_room_message(array $data)
 	if ($data['type'] != 'keepalive'){
 		$msg = mask(json_encode($data));
 		foreach ($rooms[$data['room']] as $sid) {
+			echo "Escribiendo en el room {$data['room']}\n";
 			if (isset($clients[$sid])) @socket_write($clients[$sid], $msg, strlen($msg));
 		}
 	}
