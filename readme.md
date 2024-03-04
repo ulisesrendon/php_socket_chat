@@ -1,4 +1,4 @@
-Running:
+## Local Running:
 
 
 1. Running the socket process
@@ -11,45 +11,21 @@ For docker:
 docker compose exec php-fpm php -q /var/www/html/chat/server.php
 
 
-3. Go website
+2. Go website
 
 Visit http://chat.localhost
 
+------------------------------------------------
 
--------------------------------------------------------------------
+## Cloud deploy:
 
-sudo nano /etc/systemd/system/chat.service
-
-----------------------------------------------------------------
-
-[Unit]
-Description=WS Chat PHP Server
- 
-[Service]
-ExecStart=sudo php -q /var/www/chat/server.php &
- 
-[Install]
-WantedBy=default.target
-
------------------------------------------------------------------
-
-chmod 644 /etc/systemd/system/chat.service
-
-systemctl enable chat.service
-
------------------------------------------------------------------
-
-Add cronjob to restart service to avoid some problems
-
-0 0 * * * sudo service chat restart
-
-------------------------------------------------------------------
-
-Configure port for web socket listening
+1. Prepare Domain and cloud with nginx and php
+2. Configure port 7000 on your cloud infrastructure
+3. Configure port in your linux firewall
 
 sudo ufw allow 7000
-
--------------------------------------------------------------
+-------------------------------------------------
+4. Configure nginx block
 
 ```
 map $http_upgrade $connection_upgrade {
@@ -130,3 +106,28 @@ server {
 }
 
 ```
+
+-------------------------------------------------------------------
+5. Configure linux service to run constantly in background
+   
+sudo nano /etc/systemd/system/chat.service
+
+// Content:
+```
+[Unit]
+Description=WS Chat PHP Server
+ 
+[Service]
+ExecStart=sudo php -q /var/www/chat/server.php &
+ 
+[Install]
+WantedBy=default.target
+```
+
+chmod 644 /etc/systemd/system/chat.service
+
+systemctl enable chat.service
+
+-----------------------------------------------------------------
+6. Add cronjob to restart service to avoid some problems
+0 0 * * * sudo service chat restart
