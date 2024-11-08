@@ -1,31 +1,30 @@
+# Websocket based chat app
+
 ## Local Running:
 
-
-1. Running the socket process
-```
+Run the socket process
+```shell
 php -q server.php
 ```
 
 For docker:
-```
+```shell
 docker compose exec php-fpm php -q /var/www/html/chat/server.php
 ```
 
-2. Go website
+Go website
 
 Visit http://chat.localhost
 
-------------------------------------------------
 
 ## Cloud deploy:
 
 1. Prepare Domain and cloud with nginx and php
 2. Configure port 7000 on your cloud infrastructure
 3. Configure port in your linux firewall
-```
+```shell
 sudo ufw allow 7000
 ```
--------------------------------------------------
 4. Configure nginx block
 
 ```
@@ -108,13 +107,11 @@ server {
 
 ```
 
--------------------------------------------------------------------
 5. Configure linux service to run constantly in background
-```
+```shell
 sudo nano /etc/systemd/system/chat.service
 ```
 
-// Content:
 ```
 [Unit]
 Description=WS Chat PHP Server
@@ -126,15 +123,12 @@ ExecStart=sudo php -q /var/www/chat/server.php &
 WantedBy=default.target
 ```
 
-```
+```shell
 chmod 644 /etc/systemd/system/chat.service
 systemctl enable chat.service
 ```
 
------------------------------------------------------------------
 6. Add cronjob to restart service to avoid some problems
-```
+```shell
 0 0 * * * sudo service chat restart
-```
-
 ```
