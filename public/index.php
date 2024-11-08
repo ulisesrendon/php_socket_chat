@@ -1,10 +1,4 @@
-<?php
-require '../vendor/autoload.php';
-
-use Dotenv\Dotenv;
-
-(Dotenv::createImmutable(__DIR__.'/..'))->load();
-?>
+<?php require '../config/app.php'; ?>
 <!DOCTYPE html>
 <html>
 <head>

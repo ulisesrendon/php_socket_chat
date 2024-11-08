@@ -2,14 +2,9 @@
 
 namespace Chatapp;
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__.'/config/app.php';
 
-use Dotenv\Dotenv;
 use Chatapp\Socket\ChatServer;
-
-(Dotenv::createImmutable(__DIR__))->load();
-
-date_default_timezone_set('America/Mexico_City');
 
 $ChatServer = new ChatServer(
     host: 'localhost',
